@@ -9,6 +9,7 @@ from Module.TwitterAPIWrapper import TwitterAPI
 try:
     from CustomConfig import *
 except Exception as e:
+    # Credentials
     username = 'TWITTER_USERNAME'
     costumer_key = 'TWITTER_COSTUMER_API_KEY'
     costumer_key_secret = 'TWITTER_COSTUMER_API_KEY_SECRET'
@@ -21,6 +22,11 @@ except Exception as e:
     posted_folder = 'posted'
     # Place all the images inside the folder '/path/to/images/' + 'pool'
     pool_folder = 'pool'
+
+    # Tags to be postes along with the images
+    generic_tags = [
+        '#twitter', '#bot',
+    ]
 
 def track_images(path, skip_folders=[], extensions=('.png', '.jpg', '.jpeg')):
     image_dict = {}
