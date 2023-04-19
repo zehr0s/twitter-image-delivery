@@ -37,14 +37,7 @@ python3 image_delivery.py
 You can add a `data.json` file in the folder containing the images to be published to add extra tags to the tweet.
 |Path to images|Path to `data.json`|`data.json` content|
 |:-|:-|:-|
-|`/pool/images`|`/pool/images/data.json`|
-```json
-{
-  "model": "",
-  "description": "",
-  "tags": ["#chainsawman", "#makima", "#realistic", "#hyperrealism"]
-}```
-|
+|`/pool/images`|`/pool/images/data.json`|<pre>{<br> "model": "",<br> "description": "",<br> "tags": ["#chainsawman", "#makima", "#realistic", "#hyperrealism"]<br>}</pre>|
 
 ## Notes
 Depending the depth in which the image is placed in the pool (`'/path/to/images/' + 'pool'`) a different message is going to be published along with the image check `image_delivery.py` the code to ajust it to your needs.
