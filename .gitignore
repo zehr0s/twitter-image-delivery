@@ -192,5 +192,6 @@ pyrightconfig.json
 
 ## CUSTOM:BEGIN
 Module/
+Module
 CustomConfig.py
 ## CUSTOM:END

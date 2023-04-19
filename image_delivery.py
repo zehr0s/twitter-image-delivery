@@ -2,6 +2,7 @@
 
 import os
 import sys
+import json
 import shutil
 import random
 from Module.TwitterAPIWrapper import TwitterAPI
@@ -77,6 +78,13 @@ if __name__ == '__main__':
     pool_folder_path = os.path.join(pool_path, pool_folder)
     print(f'[+] Pushing {len(push_images)} images from {image_path}')
 
+    data = None
+    try:
+        with open(os.path.join(image_path, 'data.json'), 'r') as f:
+            data = json.load(f)
+    except Exception as e:
+        print(f'[!] No custom data for selected image path: {e}')
+
     metadata = image_path.replace(pool_folder_path, '').split('/')[1:]
     text = ''
     try:
@@ -95,8 +103,12 @@ if __name__ == '__main__':
     except:
         detail = None
 
-    tweet_text = f'''{text}{" ".join(generic_tags)}'''
+    extra_tags = ''
+    if data:
+        extra_tags = ' '.join(data["tags"])
+    tweet_text = f'''{text}{" ".join(generic_tags)} {extra_tags}'''
     print(f'[.] Tweeting: {tweet_text}')
+    sys.exit(0)
 
     try:
         if len(push_images) > 1:
