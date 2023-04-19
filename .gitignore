@@ -191,7 +191,9 @@ pyrightconfig.json
 # End of https://www.toptal.com/developers/gitignore/api/python,linux
 
 ## CUSTOM:BEGIN
+
 Module/
 Module
 CustomConfig.py
+
 ## CUSTOM:END
