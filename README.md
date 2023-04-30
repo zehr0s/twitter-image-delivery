@@ -16,6 +16,8 @@ costumer_key_secret = 'TWITTER_COSTUMER_API_KEY_SECRET'
 access_token = 'TWITTER_ACCESS_TOKEN'
 access_token_secret = 'TWITTER_ACCESS_TOKEN_SECRET'
 
+# Define the path where logs are stored
+logs_path = '/path/to/logs/'
 # Define the path where the pool of images and the posted images are going to be stored
 pool_path = '/path/to/images/'
 # Posted images are going to be placed in '/path/to/images/' + 'posted'
