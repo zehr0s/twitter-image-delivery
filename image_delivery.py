@@ -65,25 +65,54 @@ if __name__ == '__main__':
     try:
         image_data = track_images(pool_path, skip_folders=[posted_folder])
         image_path, image_names = random.choice(list(image_data.items()))
-        img_amt = random.choice([1, 3])
     except:
         print('[!] Empty pool of images!')
         sys.exit(0)
+
+    img_cover_list = []
+    img_support_list = []
+
+    for image in image_names:
+        # print(image)
+        if image.startswith('_'):
+            img_cover_list.append(image)
+        else:
+            img_support_list.append(image)
+
     try:
-        push_images = random.sample(image_names, img_amt)
-    except:
-        push_images = [image_names[0]]
+        # img_amt = random.choice([1, 3]) if len(image_names) != 3 else 3
+        img_amt = 3
+        if img_amt == 1:
+            push_images = random.sample(img_cover_list, img_amt)
+        else:
+            if len(img_cover_list) == 0:
+                push_images = random.sample(img_support_list, img_amt)
+            if len(img_support_list) == 0 and len(img_cover_list) > 5:
+                push_images = random.sample(img_cover_list, img_amt)
+            if len(img_cover_list) > 0:
+                push_images = random.sample(img_cover_list, 1)
+                push_images += random.sample(img_support_list, img_amt-1)
+            else:
+                push_images = random.sample(img_support_list, img_amt)
+    except Exception as e:
+        # print(e)
+        if len(image_names) == 2:
+            push_images = sorted(image_names, reverse=True)
+        else:
+            push_images = [img_cover_list[0]] if len(img_cover_list) > 0 else [image_names[0]]
+    print(f'[+] Pushing {len(push_images)} images from {image_path}')
+    for i in push_images:
+        print(f'\t[+] {i}')
 
     push_images = [os.path.join(image_path, image_name) for image_name in push_images]
     pool_folder_path = os.path.join(pool_path, pool_folder)
-    print(f'[+] Pushing {len(push_images)} images from {image_path}')
 
     data = None
     try:
         with open(os.path.join(image_path, 'data.json'), 'r') as f:
             data = json.load(f)
     except Exception as e:
-        print(f'[!] No custom data for selected image path: {e}')
+        print(f'[!] No custom json for selected image path: {e}')
 
     metadata = image_path.replace(pool_folder_path, '').split('/')[1:]
     text = ''
@@ -108,7 +137,6 @@ if __name__ == '__main__':
         extra_tags = ' '.join(data["tags"])
     tweet_text = f'''{text}{" ".join(generic_tags)} {extra_tags}'''
     print(f'[.] Tweeting: {tweet_text}')
-    sys.exit(0)
 
     try:
         if len(push_images) > 1:
