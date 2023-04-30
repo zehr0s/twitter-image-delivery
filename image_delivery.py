@@ -2,6 +2,7 @@
 
 import os
 import sys
+import time
 import json
 import shutil
 import random
@@ -53,9 +54,6 @@ def mark_as_posted(image_file, posted_path, root_path):
         os.makedirs(target_dir)
 
     shutil.move(image_file, target_dir)
-
-import os
-import time
 
 def delete_old_file(file_path, retention_period=7):
     # Check if the file exists
