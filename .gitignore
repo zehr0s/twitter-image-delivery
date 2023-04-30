@@ -194,6 +194,8 @@ pyrightconfig.json
 
 Module/
 Module
+Logs/
+Logs
 CustomConfig.py
 
 ## CUSTOM:END
