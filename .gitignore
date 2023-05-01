@@ -196,6 +196,7 @@ Module/
 Module
 Logs/
 Logs
-CustomConfig.py
+*CustomConfig.py
+*.swp
 
 ## CUSTOM:END
