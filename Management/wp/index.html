@@ -1,0 +1,33 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Graphs</title>
+    <link rel="stylesheet" href="styles.css">
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chartjs-adapter-date-fns"></script>
+    <script src="https://cdn.jsdelivr.net/npm/date-fns"></script>
+    </style>
+</head>
+<body>
+    <div class="grid-container">
+        <div class="chart-container">
+            <canvas id="images-ok"></canvas>
+        </div>
+        <div class="chart-container">
+            <canvas id="images-error"></canvas>
+        </div>
+        <div class="chart-container">
+            <canvas id="timestamps-ok"></canvas>
+        </div>
+        <div class="chart-container">
+            <canvas id="timestamps-error"></canvas>
+        </div>
+    </div>
+
+    <img src="../scripts/plt.png" alt="Combined Plots" style="width: 100%;">
+
+    <script src="main.js"></script>
+</body>
+</html>
