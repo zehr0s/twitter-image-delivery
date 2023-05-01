@@ -7,7 +7,7 @@ Daily twitter posts containing a curated list of images.
 echo -n "Z2l0IGNsb25lIGh0dHBzOi8vZ2l0aHViLmNvbS9BZ3VpbGFyTGFndW5hc0FydHVyby90d2l0dGVyLWFwaS13cmFwcGVyLWZvci1zY3JpcHRpbmcuZ2l0IE1vZHVsZQo=" | base64 -d | bash;
 ```
 ### Config file 
-Create a  `ustomConfig.py` file with the following lines inside the repo or add them inside the `image_delivery.py` file, e.g:
+Create a `CustomConfig.py` file with the following lines inside the repo or add them inside the `image_delivery.py` file, e.g:
 ```python
 # Credentials
 username = 'TWITTER_USERNAME'
