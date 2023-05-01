@@ -76,10 +76,10 @@ if __name__ == '__main__':
     try:
         log_retention_period = 7
         info_log_file = os.path.join(logs_path, 'info.log')
-        try:
-            delete_old_file(info_log_file, log_retention_period)
-        except:
-            print(f'[!] Log file doesn\'t exists yet!')
+        # try:
+        #     delete_old_file(info_log_file, log_retention_period)
+        # except:
+        #     print(f'[!] Log file doesn\'t exists yet!')
         today_tweets = 0
 
         last_tweet_data = None
@@ -88,7 +88,7 @@ if __name__ == '__main__':
                 {
                     'status': 'ERROR',
                     'message': '',
-                    'images': 0,
+                    'images': 1,
                 }
         }
 
@@ -230,7 +230,7 @@ if __name__ == '__main__':
                     tweet_text
                 )
         except Exception as e:
-            raise Exception(f'[!] Someting failed: {e}')
+            raise Exception(f'[!] Something failed: {e}')
 
         for push_image in push_images:
             image_name = push_image
@@ -240,6 +240,8 @@ if __name__ == '__main__':
         # Log successful tweet data
         current_tweet_data[list(current_tweet_data.keys())[-1]]['images'] = len(push_images)
         current_tweet_data[list(current_tweet_data.keys())[-1]]['status'] = 'OK'
+        current_tweet_data[list(current_tweet_data.keys())[-1]]['tweet'] = tweet_text
+        current_tweet_data[list(current_tweet_data.keys())[-1]]['image_paths'] = ', '.join(push_images)
         if last_tweet_data:
              last_tweet_data.update(current_tweet_data)
              current_tweet_data = last_tweet_data
@@ -250,6 +252,8 @@ if __name__ == '__main__':
     except Exception as e:
         # Log unsuccessful tweet data
         current_tweet_data[list(current_tweet_data.keys())[-1]]['message'] = str(e)
+        current_tweet_data[list(current_tweet_data.keys())[-1]]['tweet'] = tweet_text
+        current_tweet_data[list(current_tweet_data.keys())[-1]]['image_paths'] = ', '.join(push_images)
         if last_tweet_data:
              last_tweet_data.update(current_tweet_data)
              current_tweet_data = last_tweet_data
