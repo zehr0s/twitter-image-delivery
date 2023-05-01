@@ -41,5 +41,13 @@ You can add a `data.json` file in the folder containing the images to be publish
 |:-|:-|:-|
 |`/pool/images`|`/pool/images/data.json`|<pre>{<br> "model": "",<br> "description": "",<br> "tags": ["#chainsawman", "#makima", "#realistic", "#hyperrealism"]<br>}</pre>|
 
+Graph historic tweets status by running `python3 Management/scripts/stats.py`.
+- Sum of tweeted images by date
+- Sum of errors by date
+- Tweeted images by datetime
+- Errors by datetime
+
+![preview](./Management/scripts/plt.png)
+
 ## Notes
 Depending the depth in which the image is placed in the pool (`'/path/to/images/' + 'pool'`) a different message is going to be published along with the image check `image_delivery.py` the code to ajust it to your needs.
