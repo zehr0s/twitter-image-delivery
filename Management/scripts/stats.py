@@ -2,15 +2,16 @@ import matplotlib.pyplot as plt
 import pandas as pd
 from datetime import datetime
 import json
+import os
 
 try:
     from CustomConfig import *
-    file_path = os.path.join(log_file_path, 'info.log')
+    file_path = os.path.join(logs_path, 'info.log')
     out_path = management_path
 except Exception as e:
-    render = True
-    file_path = "./Logs/info.log"
-    out_path = './Management/scripts'
+    out_path = os.environ.get('TWITTER_MANAGEMENT_SCRIPTS_PATH_Z')
+    logs_path = os.environ.get('TWITTER_IMG_DELIVERY_LOG_PATH_Z')
+    file_path = os.path.join(logs_path, 'info.log')
 
 # Load the log data
 with open(file_path) as f:

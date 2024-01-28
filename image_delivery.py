@@ -8,13 +8,13 @@ import shutil
 import random
 import datetime
 import tweepy
-# from Module.TwitterAPIWrapper import TwitterAPI
 
 # raise Exception("[!] Add constraint for images over 10MB")
 
 try:
     from CustomConfig import *
 except Exception as e:
+    print("here")
     # Credentials
     username = 'TWITTER_USERNAME'
     costumer_key = 'TWITTER_COSTUMER_API_KEY'
@@ -36,6 +36,7 @@ except Exception as e:
         '#twitter', '#bot',
     ]
 
+
 def track_images(path, skip_folders=[], extensions=('.png', '.jpg', '.jpeg')):
     image_dict = {}
     for root, dirs, files in os.walk(path):
@@ -51,11 +52,10 @@ def mark_as_posted(image_file, posted_path, root_path):
     sub_folders = os.path.relpath(image_path, root_path)
     target_dir = os.path.join(posted_path, sub_folders)
 
-    # print(f'{image_file}\n->\n{target_dir}')
-
     if not os.path.exists(target_dir):
         os.makedirs(target_dir)
 
+    print(f"[!] Moving: {image_file} -> {target_dir}")
     shutil.move(image_file, target_dir)
 
 def delete_old_file(file_path, retention_period=7):
@@ -79,10 +79,16 @@ if __name__ == '__main__':
     try:
         log_retention_period = 7
         info_log_file = os.path.join(logs_path, 'info.log')
-        # try:
-        #     delete_old_file(info_log_file, log_retention_period)
-        # except:
-        #     print(f'[!] Log file doesn\'t exists yet!')
+
+        # print(logs_path)
+        # print(pool_path)
+        # print(info_log_file)
+
+        try:
+            delete_old_file(info_log_file, log_retention_period)
+        except:
+            print(f'[!] Log file doesn\'t exists yet!')
+
         today_tweets = 0
 
         last_tweet_data = None
@@ -242,10 +248,6 @@ if __name__ == '__main__':
                 text=tweet_text,
                 media_ids=media_ids
             )
-            #tweet_image(
-            #    push_images,
-            #    tweet_text
-            #)
         except Exception as e:
             raise Exception(f'[!] Something failed: {e}')
 
