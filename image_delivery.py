@@ -7,7 +7,10 @@ import json
 import shutil
 import random
 import datetime
-from Module.TwitterAPIWrapper import TwitterAPI
+import tweepy
+# from Module.TwitterAPIWrapper import TwitterAPI
+
+# raise Exception("[!] Add constraint for images over 10MB")
 
 try:
     from CustomConfig import *
@@ -108,18 +111,25 @@ if __name__ == '__main__':
                     last_tweet_date = datetime.datetime.fromisoformat(tweet_date)
                     last_tweet_imgs = values['images']
 
-        api = TwitterAPI(
-            username,
-            costumer_key,
-            costumer_key_secret,
-            access_token,
-            access_token_secret,
+
+        # Authenticate to Twitter
+        auth = tweepy.OAuthHandler(costumer_key, costumer_key_secret)
+        auth.set_access_token(access_token, access_token_secret)
+        # Create an API object
+        api = tweepy.API(auth)
+        # Create client API object
+        client = tweepy.Client(
+            consumer_key= costumer_key,
+            consumer_secret= costumer_key_secret,
+            access_token=access_token,
+            access_token_secret=access_token_secret
         )
 
         posted_path = os.path.join(pool_path, posted_folder)
 
+        skip_folders = [posted_folder, 'patreon']
         try:
-            image_data = track_images(pool_path, skip_folders=[posted_folder])
+            image_data = track_images(pool_path, skip_folders=skip_folders)
             image_path, image_names = random.choice(list(image_data.items()))
         except:
             print('[!] Empty pool of images!')
@@ -216,19 +226,26 @@ if __name__ == '__main__':
         if data:
             extra_tags = ' '.join(data["tags"])
         tweet_text = f'''{text}{" ".join(generic_tags)} {extra_tags}'''
+        if len(tweet_text) > 280:
+            # tweet_text = f'''{text}{" ".join(generic_tags[0:-1])} {extra_tags}'''
+            raise Exception(f'Tweet lenght exeeded [{len(tweet_text)}] characters: {tweet_text}')
         print(f'[.] Tweeting: {tweet_text}')
 
+        print(f'Len={len(tweet_text)}: {tweet_text}')
+
+        # sys.exit(0)
+
         try:
-            if len(push_images) > 1:
-                api.tweet_image(
-                    push_images,
-                    tweet_text
-                )
-            else:
-                api.tweet_image(
-                    push_images[0],
-                    tweet_text
-                )
+            media_objects = [ api.media_upload(img) for img in push_images ]
+            media_ids = [media.media_id for media in media_objects]
+            client.create_tweet(
+                text=tweet_text,
+                media_ids=media_ids
+            )
+            #tweet_image(
+            #    push_images,
+            #    tweet_text
+            #)
         except Exception as e:
             raise Exception(f'[!] Something failed: {e}')
 

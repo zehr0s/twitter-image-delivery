@@ -1,122 +1,115 @@
-#! /usr/bin/env python3
-
-import os
-import json
-import datetime
 import matplotlib.pyplot as plt
-import matplotlib.dates as mdates
+import pandas as pd
+from datetime import datetime
+import json
 
-render = False
 try:
     from CustomConfig import *
-    file_path = log_file_path
+    file_path = os.path.join(log_file_path, 'info.log')
     out_path = management_path
 except Exception as e:
     render = True
     file_path = "./Logs/info.log"
     out_path = './Management/scripts'
 
-    # Load JSON data from a file
-with open(file_path, "r") as file:
-    data = json.load(file)
+# Load the log data
+with open(file_path) as f:
+    data = [json.loads(line) for line in f]
 
-# Parse the timestamps and extract the number of images and status
-daily_images_ok = {}
-daily_images_error = {}
-timestamps_ok = []
-timestamps_error = []
+# Convert the data to a pandas DataFrame
+df = pd.DataFrame(data)
 
-for timestamp, entry in data.items():
-    dt = datetime.datetime.strptime(timestamp, "%Y-%m-%d %H:%M:%S.%f")
-    date_str = dt.strftime("%Y-%m-%d")
+# Reshape the data
+reshaped_data = []
 
-    if entry["status"] == "OK":
-        daily_images_ok[date_str] = daily_images_ok.get(date_str, 0) + entry["images"]
-        timestamps_ok.append(dt)
-    elif entry["status"] == "ERROR":
-        daily_images_error[date_str] = daily_images_error.get(date_str, 0) + entry["images"]
-        timestamps_error.append(dt)
+for entry in data:
+    for key, value in entry.items():
+        value['timestamp'] = key
+        reshaped_data.append(value)
 
-# Convert dictionaries to lists for plotting
-dates_ok, images_ok = zip(*sorted(daily_images_ok.items()))
-dates_error, images_error = zip(*sorted(daily_images_error.items()))
 
-# Convert date strings to datetime objects
-dates_ok = [datetime.datetime.strptime(date, "%Y-%m-%d") for date in dates_ok]
-dates_error = [datetime.datetime.strptime(date, "%Y-%m-%d") for date in dates_error]
+# Convert the reshaped data to a DataFrame
+df = pd.DataFrame(reshaped_data)
 
-fig, axs = plt.subplots(2, 2, figsize=(15, 10))
+# Convert the timestamp to datetime
+df['timestamp'] = pd.to_datetime(df['timestamp'])
+df['date'] = df['timestamp'].dt.date
 
-# Set the figure background to transparent
-fig.patch.set_facecolor('none')
-fig.patch.set_alpha(0)
 
-fg_color = '#5D5E62'
-# Set the subplots background to transparent
-for ax in axs.flat:
-    ax.patch.set_facecolor('none')
-    ax.patch.set_alpha(0)
+# Group by date and status, and sum the number of images
+grouped_df = df.groupby(['date', 'status'])['images'].sum().unstack()
 
-    # Set the colors for the dark theme
-    ax.spines['bottom'].set_color(fg_color)
-    ax.spines['top'].set_color(fg_color)
-    ax.spines['right'].set_color(fg_color)
-    ax.spines['left'].set_color(fg_color)
-    ax.xaxis.label.set_color(fg_color)
-    ax.yaxis.label.set_color(fg_color)
-    ax.title.set_color(fg_color)
-    ax.tick_params(axis='x', colors=fg_color)
-    ax.tick_params(axis='y', colors=fg_color)
+# Split the DataFrame into two: one with status 'OK' and one with status 'ERROR'
+df_ok = df[df['status'] == 'OK']
+df_error = df[df['status'] == 'ERROR']
 
-# Define pastel colors
-pastel_green = '#317e7e'
-pastel_orange = '#93394e'
-# pastel_green = '#1d3232'
-# pastel_orange = '#3c2227'
+# Group the data by date and sum the number of images
+grouped_ok = df_ok.groupby('date')['images'].sum()
+grouped_error = df_error.groupby('date')['images'].sum()
+grouped_df = df.groupby(['date', 'status'])['images'].sum().unstack()
 
-# fig, axs = plt.subplots(2, 2, figsize=(16, 8))
-# fig.tight_layout(pad=6.0)
+# Count the number of 'OK' and 'ERROR' statuses
+status_counts = df['status'].value_counts()
 
-# Bar of Published images per day (status OK)
-axs[0, 0].bar(dates_ok, images_ok, color=pastel_green)
-axs[0, 0].set_xlabel("Date")
-axs[0, 0].set_ylabel("Number of Images")
-axs[0, 0].set_title("Published Images per Day (Status OK)")
-axs[0, 0].xaxis.set_major_formatter(mdates.DateFormatter("%Y-%m-%d"))
-axs[0, 0].tick_params(axis='x', rotation=45)
-# axs[0, 0].grid(axis="y")
+# Set a pastel color scheme
+pastel_colors = ["#a8e6cf","#dcedc1","#ffd3b6","#ffaaa5","#ff8b94"]
 
-# Bar of Published images per day (status ERROR)
-axs[0, 1].bar(dates_error, images_error, color=pastel_orange)
-axs[0, 1].set_xlabel("Date")
-axs[0, 1].set_ylabel("Number of Images")
-axs[0, 1].set_title("Sum of errors per Day (Status ERROR)")
-axs[0, 1].xaxis.set_major_formatter(mdates.DateFormatter("%Y-%m-%d"))
-axs[0, 1].tick_params(axis='x', rotation=45)
-# axs[0, 1].grid(axis="y")
+# Create the bar charts with labels
+fig, axs = plt.subplots(2, 2, figsize=(18, 12), facecolor='#2b2b2b')
 
-# Posts with status OK by timestamp
-axs[1, 0].plot(timestamps_ok, [1]*len(timestamps_ok), c=pastel_green, marker='o')
-axs[1, 0].set_xlabel("Timestamp")
-axs[1, 0].set_title("Posts with Status OK by Timestamp")
-axs[1, 0].xaxis.set_major_formatter(mdates.DateFormatter("%Y-%m-%d %H:%M:%S"))
-axs[1, 0].tick_params(axis='x', rotation=45)
-axs[1, 0].set_yticks([])
-# axs[1, 0].legend()
-# axs[1, 0].grid()
+# 'OK' status chart
+grouped_ok.plot(kind='bar', ax=axs[0, 0], color=pastel_colors[0], edgecolor='black')
+axs[0, 0].set_facecolor('#2b2b2b')
+axs[0, 0].set_title('Number of Images Processed by Day (Status: OK)', fontsize=16, color='white')
+axs[0, 0].set_xlabel('Date', fontsize=14, color='white')
+axs[0, 0].set_ylabel('Number of Images', fontsize=14, color='white')
+axs[0, 0].tick_params(colors='white')
 
-# Posts with status ERROR by timestamp
-axs[1, 1].plot(timestamps_error, [1]*len(timestamps_error), c=pastel_orange, marker='o')
-axs[1, 1].set_xlabel("Timestamp")
-axs[1, 1].set_title("Posts with Status ERROR by Timestamp")
-axs[1, 1].xaxis.set_major_formatter(mdates.DateFormatter("%Y-%m-%d %H:%M:%S"))
-axs[1, 1].tick_params(axis='x', rotation=45)
-axs[1, 1].set_yticks([])
-# axs[1, 1].legend()
-# axs[1, 1].grid()
+# Add labels to 'OK' status chart
+for i, v in enumerate(grouped_ok):
+    axs[0, 0].text(i, v + 1, int(v), ha='center', va='bottom', fontsize=12, color='white')
+
+try:
+    # 'ERROR' status chart
+    grouped_error.plot(kind='bar', ax=axs[0, 1], color=pastel_colors[3], edgecolor='black')
+    axs[0, 1].set_facecolor('#2b2b2b')
+    axs[0, 1].set_title('Number of Images Processed by Day (Status: ERROR)', fontsize=16, color='white')
+    axs[0, 1].set_xlabel('Date', fontsize=14, color='white')
+    axs[0, 1].set_ylabel('Number of Images', fontsize=14, color='white')
+    axs[0, 1].tick_params(colors='white')
+
+    # Add labels to 'ERROR' status chart
+    for i, v in enumerate(grouped_error):
+        axs[0, 1].text(i, v + 1, int(v), ha='center', va='bottom', fontsize=12, color='white')
+except:
+    pass
+# Combined chart
+grouped_df.plot(kind='bar', stacked=True, ax=axs[1, 0], color=pastel_colors[:2], edgecolor='black')
+axs[1, 0].set_facecolor('#2b2b2b')
+axs[1, 0].set_title('Number of Images Processed by Day (Combined)', fontsize=16, color='white')
+axs[1, 0].set_xlabel('Date', fontsize=14, color='white')
+axs[1, 0].set_ylabel('Number of Images', fontsize=14, color='white')
+axs[1, 0].tick_params(colors='white')
+
+# Add labels to combined chart
+for i, v in enumerate(grouped_df.sum(axis=1)):
+    axs[1, 0].text(i, v + 1, int(v), ha='center', va='bottom', fontsize=12, color='white')
+
+# Pie chart
+import matplotlib
+matplotlib.rcParams['text.color'] = 'w'
+pie = axs[1, 1].pie(status_counts, labels=status_counts.index, autopct='%1.1f%%', startangle=90, colors=pastel_colors[:2])
+axs[1, 1].set_facecolor('#2b2b2b')
+axs[1, 1].set_title('Status Distribution', fontsize=16, color='white')
+
+#axs[1, 1].pie(status_counts, labels=status_counts.index, autopct='%1.1f%%', startangle=90, colors=pastel_colors[:2])
+#axs[1, 1].set_facecolor('#2b2b2b')
+#axs[1, 1].set_title('Status Distribution', fontsize=16, color='white')
 
 plt.tight_layout()
-plt.savefig(os.path.join(out_path, 'plt.png'), bbox_inches='tight', transparent=True)
 
-if render:
-    plt.show()
+# Save the figure as a .png image
+plt.savefig(os.path.join(out_path, 'plt.png'))
+
+# Show the figure
+# plt.show()

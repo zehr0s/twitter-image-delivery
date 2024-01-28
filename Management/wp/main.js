@@ -1,4 +1,4 @@
-fetch('../Logs/info.log')
+fetch('../../Logs/info.log')
     .then(response => response.json())
     .then(data => {
         const dailyImagesOK = {};

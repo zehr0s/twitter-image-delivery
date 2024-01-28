@@ -196,7 +196,10 @@ Module/
 Module
 Logs/
 Logs
-*CustomConfig.py
+# *CustomConfig.py
 *.swp
+*.png
+*.jpg
+*.jpeg
 
 ## CUSTOM:END
